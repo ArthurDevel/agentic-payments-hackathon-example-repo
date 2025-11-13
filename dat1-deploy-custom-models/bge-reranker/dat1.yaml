@@ -1,0 +1,8 @@
+model_name: bge-reranker
+exclude:
+  - '**.git/**'
+  - '**.idea/**'
+  - '**__pycache__/**'
+  - '**.DS_Store'
+  - '*.md'
+  - .dat1.yaml

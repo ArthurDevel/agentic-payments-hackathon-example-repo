@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // CONSTANTS
 // ============================================================================
 
-const DAT1_API_URL = 'https://api.dat1.co/api/v1/collection/gpt-120-oss/invoke-chat';
+const DEFAULT_DAT1_API_URL = 'https://api.dat1.co/api/v1/collection/gpt-120-oss/invoke-chat';
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 5000;
 
@@ -46,7 +46,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     throw new Error('DAT1_API_KEY is not configured');
   }
 
-  const response = await fetch(DAT1_API_URL, {
+  const apiUrl = process.env.DAT1_CHAT_ENDPOINT || DEFAULT_DAT1_API_URL;
+
+  const response = await fetch(apiUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

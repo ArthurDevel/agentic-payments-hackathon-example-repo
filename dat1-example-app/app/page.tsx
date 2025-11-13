@@ -26,6 +26,26 @@ interface Message {
 type ChatMode = 'normal' | 'streaming';
 
 // ============================================================================
+// COMPONENTS
+// ============================================================================
+
+/**
+ * Displays the endpoint URL being used for chat
+ */
+function EndpointDisplay() {
+  const [endpoint, setEndpoint] = useState<string>('dat1 gpt-oss-120b');
+
+  useState(() => {
+    fetch('/api/endpoint')
+      .then((res) => res.json())
+      .then((data) => setEndpoint(data.endpoint))
+      .catch(() => setEndpoint('dat1 gpt-oss-120b'));
+  });
+
+  return <p>Send a message to start chatting with {endpoint}</p>;
+}
+
+// ============================================================================
 // EVENT HANDLERS
 // ============================================================================
 
@@ -287,7 +307,7 @@ export default function Home() {
         <div className="mx-auto max-w-3xl space-y-4">
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-center text-zinc-500 dark:text-zinc-400">
-              <p>Send a message to start chatting with dat1 gpt-oss-120b</p>
+              <EndpointDisplay />
             </div>
           ) : (
             messages.map((message, index) => (
