@@ -25,7 +25,7 @@ POST https://api.dat1.co/api/v1/inference/llama-chat/invoke-stream
 ```
 
 ## Usage in `dat1-example-app``
-Add `DAT1_CHAT_ENDPOINT=https://api.dat1.co/api/v1/inference/llama-chat/invoke-stream` to `dat1-example-app/.env`
+Add `DAT1_CHAT_ENDPOINT_OVERRIDE=https://api.dat1.co/api/v1/inference/llama-chat/invoke-stream` to `dat1-example-app/.env`
 
 ## General Usage
 

@@ -46,7 +46,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     throw new Error('DAT1_API_KEY is not configured');
   }
 
-  const apiUrl = process.env.DAT1_CHAT_ENDPOINT || DEFAULT_DAT1_API_URL;
+  const apiUrl = process.env.DAT1_CHAT_ENDPOINT_OVERRIDE || DEFAULT_DAT1_API_URL;
 
   const response = await fetch(apiUrl, {
     method: 'POST',
