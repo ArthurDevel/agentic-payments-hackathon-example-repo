@@ -12,4 +12,4 @@ Simple Next.js chat application demonstrating integration with the dat1 gpt-oss-
 
 ## Examples Repo
 
-Please find a copy of the [dat1 examples repo](https://github.com/dat1-co/dat1-model-examples) at `./dat1-example-repo`.
+Please find a copy of the dat1 examples repo ([https://github.com/dat1-co/dat1-model-examples](https://github.com/dat1-co/dat1-model-examples)) at `./dat1-example-repo`.
