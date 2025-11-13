@@ -1,4 +1,5 @@
 # OpenAI / gpt-oss-120b API Documentation
+source: [https://dat1.co/console/collection/OpenAI__gpt-oss-120b](https://dat1.co/console/collection/OpenAI__gpt-oss-120b)
 
 ## Using OpenAI / gpt-oss-120b Programmatically
 

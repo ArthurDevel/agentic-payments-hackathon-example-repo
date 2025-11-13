@@ -1,4 +1,4 @@
-# Dat1 Example Repo for Agentic Payments Hackathon
+# Dat1 Test Repo for Agentic Payments Hackathon
 
 This repo is made to test out the capabilities of dat1 in preparation for the [Agentic Payments Hackathon in collaboration with Stripe](https://luma.com/f7gs82fe?tk=wx4evx).
 
