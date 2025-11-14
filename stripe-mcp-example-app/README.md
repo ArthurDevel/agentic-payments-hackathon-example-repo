@@ -1,4 +1,4 @@
-# dat1 Example Chat App (Streaming Only)
+# Stripe MCP Example App
 
 Simple streaming chat interface demonstrating integration with the dat1 predeployed gpt-oss-120b model.
 
@@ -20,7 +20,7 @@ pnpm dev
 ## Project Structure
 
 ```
-dat1-example-app-streaming/
+stripe-mcp-example-app/
 ├── app/
 │   ├── api/
 │   │   ├── chat-stream/   # Streaming chat endpoint
