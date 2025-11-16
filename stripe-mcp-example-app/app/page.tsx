@@ -11,7 +11,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // ============================================================================
 // INTERFACES
@@ -33,15 +35,16 @@ interface Message {
 function EndpointDisplay() {
   const [endpoint, setEndpoint] = useState<string>('dat1 gpt-oss-120b');
 
-  useState(() => {
+  useEffect(() => {
     fetch('/api/endpoint')
       .then((res) => res.json())
       .then((data) => setEndpoint(data.endpoint))
       .catch(() => setEndpoint('dat1 gpt-oss-120b'));
-  });
+  }, []);
 
   return <p>Send a message to start chatting with {endpoint}</p>;
 }
+
 
 // ============================================================================
 // EVENT HANDLERS
@@ -203,7 +206,7 @@ export default function Home() {
   return (
     <div className="flex h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       {/* Header */}
-      <header className="flex-shrink-0 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+      <header className="shrink-0 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
             dat1 Chat (Streaming)
@@ -233,7 +236,36 @@ export default function Home() {
                       : 'bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'user' ? (
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  ) : (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => <p className="mb-2">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                        li: ({ children }) => <li className="mb-1">{children}</li>,
+                        code: ({ className, children }) => {
+                          if (className) {
+                            return <code className="block bg-zinc-800 text-zinc-100 p-2 rounded my-2 overflow-x-auto">{children}</code>;
+                          }
+                          return <code className="bg-zinc-700 text-zinc-100 px-1 py-0.5 rounded">{children}</code>;
+                        },
+                        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                        em: ({ children }) => <em className="italic">{children}</em>,
+                        a: ({ href, children }) => <a href={href} className="text-blue-400 underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                        table: ({ children }) => <table className="border-collapse border border-zinc-600 my-2 w-full">{children}</table>,
+                        thead: ({ children }) => <thead className="bg-zinc-700">{children}</thead>,
+                        tbody: ({ children }) => <tbody>{children}</tbody>,
+                        tr: ({ children }) => <tr className="border-b border-zinc-600">{children}</tr>,
+                        th: ({ children }) => <th className="border border-zinc-600 px-3 py-2 text-left font-semibold">{children}</th>,
+                        td: ({ children }) => <td className="border border-zinc-600 px-3 py-2">{children}</td>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  )}
                   {message.thinking && (
                     <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                       {message.thinking}
@@ -254,7 +286,7 @@ export default function Home() {
       </div>
 
       {/* Input - Fixed at bottom */}
-      <div className="flex-shrink-0 border-t border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="shrink-0 border-t border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto max-w-3xl">
           <div className="flex gap-2">
             <input

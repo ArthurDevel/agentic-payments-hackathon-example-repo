@@ -4,3 +4,4 @@ CLAUDE.md
 **/*.gguf
 .cursor
 .docs/plans
+.env

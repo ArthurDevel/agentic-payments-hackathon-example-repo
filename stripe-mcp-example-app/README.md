@@ -1,13 +1,16 @@
 # Stripe MCP Example App
 
-Simple streaming chat interface demonstrating integration with the dat1 predeployed gpt-oss-120b model.
+Streaming chat interface demonstrating integration with the dat1 predeployed gpt-oss-120b model and Stripe MCP (Model Context Protocol) server. The AI agent can execute Stripe operations like retrieving balance, creating customers, managing products, and more through natural language conversations.
 
 ## Setup
 
-1. Add your dat1 API key to `.env`:
+1. Add your API keys to `.env`:
 ```
-DAT1_API_KEY=your_key_here
+DAT1_API_KEY=your_dat1_api_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
+
+**Note:** For Stripe MCP, we recommend using a [restricted API key](https://docs.stripe.com/keys#create-restricted-api-secret-key) to limit access to only the functionality your agent requires.
 
 2. Install dependencies and run:
 ```bash
@@ -23,11 +26,15 @@ pnpm dev
 stripe-mcp-example-app/
 ├── app/
 │   ├── api/
-│   │   ├── chat-stream/   # Streaming chat endpoint
+│   │   ├── chat-stream/   # Streaming chat endpoint with MCP tool execution
 │   │   └── endpoint/      # Endpoint info endpoint
 │   ├── page.tsx           # Main chat interface
 │   ├── layout.tsx         # App layout
 │   └── globals.css        # Global styles
+├── lib/
+│   └── mcp/
+│       ├── stripe-mcp.ts  # Stripe MCP HTTP client
+│       └── tools.ts        # Tool definitions and conversion
 ├── public/                # Static assets
 └── package.json
 ```
