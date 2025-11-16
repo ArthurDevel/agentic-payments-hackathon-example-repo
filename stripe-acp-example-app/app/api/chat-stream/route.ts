@@ -167,47 +167,91 @@ const TOOLS: ToolDefinition[] = [
 // ============================================================================
 
 /**
+ * Parsed arguments for search_products tool
+ */
+interface SearchProductsArgs {
+  query: string;
+}
+
+/**
+ * Parsed arguments for create_checkout tool
+ */
+interface CreateCheckoutArgs {
+  items: Array<{ id: string; quantity: number }>;
+}
+
+/**
+ * Parsed arguments for update_checkout tool
+ */
+interface UpdateCheckoutArgs {
+  checkout_id: string;
+  fulfillment_address?: Record<string, string>;
+  fulfillment_option_id?: string;
+}
+
+/**
+ * Parsed arguments for complete_checkout tool
+ */
+interface CompleteCheckoutArgs {
+  checkout_id: string;
+  payment_data: {
+    token: string;
+    provider: string;
+  };
+}
+
+/**
  * Execute a tool call by calling the appropriate ACP endpoint
  * @param toolName - Name of the tool to execute
  * @param args - Tool arguments as JSON string
  * @returns Tool execution result
  */
 async function executeTool(toolName: string, args: string): Promise<string> {
-  const parsedArgs = JSON.parse(args);
+  const parsedArgs = JSON.parse(args) as SearchProductsArgs | CreateCheckoutArgs | UpdateCheckoutArgs | CompleteCheckoutArgs;
 
   switch (toolName) {
     case 'search_products': {
-      const response = await fetch(`${BASE_URL}/api/acp/products/feed?q=${encodeURIComponent(parsedArgs.query)}`);
-      if (!response.ok) throw new Error('Failed to search products');
+      const searchArgs = parsedArgs as SearchProductsArgs;
+      const response = await fetch(`${BASE_URL}/api/acp/products/feed?q=${encodeURIComponent(searchArgs.query)}`);
+      if (!response.ok) {
+        throw new Error('Failed to search products');
+      }
       const data = await response.json();
       return JSON.stringify(data);
     }
 
     case 'create_checkout': {
+      const createArgs = parsedArgs as CreateCheckoutArgs;
       const response = await fetch(`${BASE_URL}/api/acp/checkout_sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: parsedArgs.items, buyer: {} }),
+        body: JSON.stringify({ items: createArgs.items, buyer: {} }),
       });
-      if (!response.ok) throw new Error('Failed to create checkout');
+      if (!response.ok) {
+        throw new Error('Failed to create checkout');
+      }
       const data = await response.json();
       return JSON.stringify(data);
     }
 
     case 'update_checkout': {
-      const { checkout_id, ...updateData } = parsedArgs;
+      const updateArgs = parsedArgs as UpdateCheckoutArgs;
+      const { checkout_id, ...updateData } = updateArgs;
       const response = await fetch(`${BASE_URL}/api/acp/checkout_sessions/${checkout_id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData),
       });
-      if (!response.ok) throw new Error('Failed to update checkout');
+      if (!response.ok) {
+        throw new Error('Failed to update checkout');
+      }
       const data = await response.json();
       return JSON.stringify(data);
     }
 
     case 'complete_checkout': {
-      const { checkout_id, payment_data } = parsedArgs;
+      const completeArgs = parsedArgs as CompleteCheckoutArgs;
+      const { checkout_id, payment_data } = completeArgs;
       const response = await fetch(`${BASE_URL}/api/acp/checkout_sessions/${checkout_id}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -230,18 +274,36 @@ async function executeTool(toolName: string, args: string): Promise<string> {
 // MAIN ENDPOINT
 // ============================================================================
 
+interface Dat1RequestBody {
+  model: string;
+  messages: ChatMessage[];
+  temperature: number;
+  stream: boolean;
+  max_tokens: number;
+  tools: ToolDefinition[];
+}
+
+/**
+ * API response from dat1
+ */
+interface Dat1ChatResponse {
+  choices: Array<{
+    message: ChatMessage;
+  }>;
+}
+
 /**
  * Call dat1 API
  * @param messages - Chat messages
  * @param shouldStream - Whether to stream the response
  * @returns Complete chat response or streaming response
  */
-async function callDat1(messages: ChatMessage[], shouldStream: boolean = false): Promise<any> {
+async function callDat1(messages: ChatMessage[], shouldStream: boolean = false): Promise<Dat1ChatResponse | Response> {
   if (!process.env.DAT1_API_KEY) {
     throw new Error('DAT1_API_KEY is not configured');
   }
 
-  const requestBody: any = {
+  const requestBody: Dat1RequestBody = {
     model: DAT1_MODEL,
     messages,
     temperature: DEFAULT_TEMPERATURE,
@@ -268,14 +330,9 @@ async function callDat1(messages: ChatMessage[], shouldStream: boolean = false):
     return response;
   }
 
-  return response.json();
+  return response.json() as Promise<Dat1ChatResponse>;
 }
 
-/**
- * POST handler for streaming chat completions with tool calling
- * @param request - Next.js request object containing chat messages
- * @returns Streaming response with chat completion chunks
- */
 /**
  * Load existing conversation from file
  * @param conversationId - Unique conversation identifier
@@ -317,7 +374,12 @@ function saveConversation(messages: ChatMessage[], conversationId: string): void
   }
 }
 
-export async function POST(request: NextRequest) {
+/**
+ * POST handler for streaming chat completions with tool calling
+ * @param request - Next.js request object containing chat messages
+ * @returns Streaming response with chat completion chunks
+ */
+export async function POST(request: NextRequest): Promise<Response> {
   try {
     const body: ChatRequestBody = await request.json();
 
@@ -337,14 +399,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Loop until we get a final text response (no tool calls)
-    // Maximum iterations to prevent infinite loops
     const MAX_ITERATIONS = 10;
     let iterations = 0;
 
     while (iterations < MAX_ITERATIONS) {
       iterations++;
 
-      const completion = await callDat1(messages, false);
+      const completion = await callDat1(messages, false) as Dat1ChatResponse;
 
       if (!completion.choices || completion.choices.length === 0) {
         throw new Error(`Invalid dat1 API response: ${JSON.stringify(completion)}`);
@@ -411,14 +472,15 @@ export async function POST(request: NextRequest) {
       saveConversation(messages, conversationId);
 
       // Stream the content we already received (don't make another API call)
-      // Create a streaming response that sends the content chunk by chunk
       const content = assistantMessage.content || '';
+      const CHUNK_SIZE = 10;
+      const STREAMING_DELAY_MS = 10;
+      
       const stream = new ReadableStream({
         async start(controller) {
           // Send content in chunks to simulate streaming
-          const chunkSize = 10; // Characters per chunk
-          for (let i = 0; i < content.length; i += chunkSize) {
-            const chunk = content.slice(i, i + chunkSize);
+          for (let i = 0; i < content.length; i += CHUNK_SIZE) {
+            const chunk = content.slice(i, i + CHUNK_SIZE);
             const data = JSON.stringify({
               choices: [{
                 delta: { content: chunk },
@@ -427,7 +489,7 @@ export async function POST(request: NextRequest) {
             });
             controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
             // Small delay to simulate streaming
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, STREAMING_DELAY_MS));
           }
           // Send done marker
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));

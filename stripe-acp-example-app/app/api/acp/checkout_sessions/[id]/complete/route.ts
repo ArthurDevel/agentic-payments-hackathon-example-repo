@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CompleteCheckoutRequest } from '@/lib/types/payment';
 import { CompleteCheckoutResponse, Order } from '@/lib/types/order';
-import { readSessionsFromFile, writeSessionsToFile } from '../../route';
+import { readSessionsFromFile, writeSessionsToFile } from '@/lib/checkout/sessionStorage';
 import { stripe } from '@/lib/stripe/client';
 
 // ============================================================================

@@ -9,8 +9,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import {
   CheckoutSession,
   CreateCheckoutRequest,
@@ -20,36 +18,7 @@ import {
 } from '@/lib/types/checkout';
 import { Product } from '@/lib/types/product';
 import productsData from '@/data/products.json';
-
-const SESSIONS_FILE_PATH = path.join(
-  process.cwd(),
-  'conversations',
-  'checkout_sessions.json'
-);
-
-export function readSessionsFromFile(): Map<string, CheckoutSession> {
-  try {
-    if (fs.existsSync(SESSIONS_FILE_PATH)) {
-      const fileContent = fs.readFileSync(SESSIONS_FILE_PATH, 'utf-8');
-      if (fileContent) {
-        const data = JSON.parse(fileContent);
-        return new Map(data);
-      }
-    }
-  } catch (error) {
-    console.error('Error reading checkout sessions file:', error);
-  }
-  return new Map<string, CheckoutSession>();
-}
-
-export function writeSessionsToFile(sessions: Map<string, CheckoutSession>): void {
-  try {
-    const data = JSON.stringify(Array.from(sessions.entries()), null, 2);
-    fs.writeFileSync(SESSIONS_FILE_PATH, data, 'utf-8');
-  } catch (error) {
-    console.error('Error writing checkout sessions file:', error);
-  }
-}
+import { readSessionsFromFile, writeSessionsToFile } from '@/lib/checkout/sessionStorage';
 
 // ============================================================================
 // CONSTANTS
@@ -77,12 +46,6 @@ const FULFILLMENT_OPTIONS: FulfillmentOption[] = [
     description: 'Next business day',
   },
 ];
-
-// ============================================================================
-// IN-MEMORY STORAGE (DEPRECATED - READ FROM FILE INSTEAD)
-// ============================================================================
-
-// export const checkoutSessions = readSessionsFromFile();
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -210,6 +173,3 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckoutS
 
   return NextResponse.json(checkout);
 }
-
-// Export storage for use by other endpoints
-// export { checkoutSessions };

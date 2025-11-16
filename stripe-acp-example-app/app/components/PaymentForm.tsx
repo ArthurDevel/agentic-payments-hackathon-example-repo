@@ -37,13 +37,26 @@ interface PaymentFormProps {
 // PAYMENT FORM INTERNAL COMPONENT
 // ============================================================================
 
+/**
+ * Internal payment form component
+ * @param checkoutId - Checkout session ID
+ * @param amount - Total amount in cents
+ * @param currency - Currency code
+ * @param onPaymentComplete - Callback when payment succeeds
+ * @param onError - Callback when payment fails
+ * @returns Payment form JSX
+ */
 function PaymentFormInternal({ checkoutId, amount, currency, onPaymentComplete, onError }: PaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  /**
+   * Handles form submission and payment processing
+   * @param event - Form submit event
+   */
+  const handleSubmit = async (event: FormEvent): Promise<void> => {
+    event.preventDefault();
 
     if (!stripe || !elements) {
       onError('Stripe not loaded');
@@ -150,6 +163,15 @@ function PaymentFormInternal({ checkoutId, amount, currency, onPaymentComplete, 
 // MAIN COMPONENT
 // ============================================================================
 
+/**
+ * Payment form component with Stripe Elements
+ * @param checkoutId - Checkout session ID
+ * @param amount - Total amount in cents
+ * @param currency - Currency code
+ * @param onPaymentComplete - Callback when payment succeeds
+ * @param onError - Callback when payment fails
+ * @returns Payment form wrapped in Stripe Elements provider
+ */
 export default function PaymentForm({ checkoutId, amount, currency, onPaymentComplete, onError }: PaymentFormProps) {
   const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 

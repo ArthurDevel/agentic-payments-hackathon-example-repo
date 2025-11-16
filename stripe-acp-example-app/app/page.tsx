@@ -42,7 +42,10 @@ export default function ChatPage() {
   const conversationIdRef = useRef<string>(Date.now().toString());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  /**
+   * Scrolls to the bottom of the message list
+   */
+  const scrollToBottom = (): void => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -60,7 +63,7 @@ export default function ChatPage() {
   /**
    * Checks if checkout is ready for payment by querying the API
    */
-  const checkForReadyCheckout = async () => {
+  const checkForReadyCheckout = async (): Promise<void> => {
     try {
       const response = await fetch(`/api/checkout-state?conversationId=${conversationIdRef.current}`);
       if (response.ok) {
@@ -77,8 +80,12 @@ export default function ChatPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /**
+   * Handles chat message submission
+   * @param event - Form submit event
+   */
+  const handleSubmit = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault();
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
@@ -133,8 +140,8 @@ export default function ChatPage() {
                   return newMessages;
                 });
               }
-            } catch (e) {
-              // Skip invalid JSON
+            } catch (parseError) {
+              // Skip invalid JSON in streaming response
             }
           }
         }
@@ -156,7 +163,11 @@ export default function ChatPage() {
     }
   };
 
-  const handlePaymentComplete = async (paymentIntentId: string) => {
+  /**
+   * Handles payment completion and notifies agent
+   * @param paymentIntentId - Stripe payment intent ID
+   */
+  const handlePaymentComplete = async (paymentIntentId: string): Promise<void> => {
     if (!checkoutState) return;
 
     // Send payment intent ID to agent via chat message
@@ -217,8 +228,8 @@ export default function ChatPage() {
                   return newMessages;
                 });
               }
-            } catch (e) {
-              // Skip invalid JSON
+            } catch (parseError) {
+              // Skip invalid JSON in streaming response
             }
           }
         }
@@ -237,7 +248,11 @@ export default function ChatPage() {
     }
   };
 
-  const handlePaymentError = (error: string) => {
+  /**
+   * Handles payment errors
+   * @param error - Error message
+   */
+  const handlePaymentError = (error: string): void => {
     setMessages((prev) => [
       ...prev,
       {

@@ -20,8 +20,8 @@ export interface CreatePaymentIntentResponse {
 /**
  * Payment data for completing checkout
  */
-interface PaymentData {
-  token: string; // This will be the payment_intent_id
+export interface PaymentData {
+  token: string;
   provider: 'stripe';
 }
 
