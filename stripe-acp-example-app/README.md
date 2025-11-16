@@ -50,8 +50,17 @@ stripe-acp-example-app/
 │   │   └── PaymentForm.tsx    # Stripe.js payment form
 │   ├── page.tsx               # Main chat interface
 │   └── ...
+├── conversations/             # Conversation and checkout session storage (appears on first run)
+│   ├── conversation-*.json
+│   └── checkout_sessions.json
 ├── data/
 │   └── products.json          # Product catalog
+├── lib/
+│   ├── checkout/
+│   │   └── sessionStorage.ts  # Checkout session file storage utilities
+│   ├── stripe/
+│   │   └── client.ts          # Stripe client initialization
+│   └── types/                 # TypeScript type definitions
 └── ...
 ```
 
