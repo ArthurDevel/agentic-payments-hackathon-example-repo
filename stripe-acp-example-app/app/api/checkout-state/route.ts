@@ -71,27 +71,55 @@ export async function GET(request: NextRequest): Promise<NextResponse<CheckoutRe
     const conversation = JSON.parse(content) as ConversationMessage[];
 
     // Find the latest update_checkout or create_checkout tool result
+    let latestCheckout: CheckoutData | null = null;
+    let latestCheckoutIndex = -1;
+
     for (let i = conversation.length - 1; i >= 0; i--) {
       const message = conversation[i];
       if (message.role === 'tool' && (message.name === 'update_checkout' || message.name === 'create_checkout')) {
         try {
           const checkoutData = JSON.parse(message.content) as CheckoutData;
-          if (checkoutData.status === 'ready_for_payment') {
-            const totalAmount = checkoutData.totals?.find((total) => total.label === 'Total')?.amount;
-            if (totalAmount) {
-              return NextResponse.json({
-                checkout: {
-                  checkoutId: checkoutData.id,
-                  amount: totalAmount,
-                  currency: checkoutData.currency || DEFAULT_CURRENCY,
-                },
-              });
-            }
+          if (checkoutData.status === 'ready_for_payment' && !latestCheckout) {
+            latestCheckout = checkoutData;
+            latestCheckoutIndex = i;
+            break;
           }
         } catch (parseError) {
           // Skip invalid JSON in message content
           continue;
         }
+      }
+    }
+
+    // If we found a ready checkout, verify it hasn't been completed
+    if (latestCheckout) {
+      // Check if there's a complete_checkout call after the ready_for_payment status
+      for (let i = latestCheckoutIndex + 1; i < conversation.length; i++) {
+        const message = conversation[i];
+        if (message.role === 'tool' && message.name === 'complete_checkout') {
+          try {
+            const completedData = JSON.parse(message.content) as { checkout?: CheckoutData };
+            if (completedData.checkout?.id === latestCheckout.id) {
+              // This checkout was completed, don't show payment form
+              return NextResponse.json({ checkout: null });
+            }
+          } catch (parseError) {
+            // Skip invalid JSON in message content
+            continue;
+          }
+        }
+      }
+
+      // Checkout is ready and not completed yet
+      const totalAmount = latestCheckout.totals?.find((total) => total.label === 'Total')?.amount;
+      if (totalAmount) {
+        return NextResponse.json({
+          checkout: {
+            checkoutId: latestCheckout.id,
+            amount: totalAmount,
+            currency: latestCheckout.currency || DEFAULT_CURRENCY,
+          },
+        });
       }
     }
 
