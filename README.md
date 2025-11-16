@@ -1,6 +1,6 @@
-# Dat1 Test Repo for Agentic Payments Hackathon
+# Agentic Payments Hackathon example repo
 
-This repo is made to test out the capabilities of dat1 in preparation for the [Agentic Payments Hackathon in collaboration with Stripe](https://luma.com/f7gs82fe?tk=wx4evx).
+This repo contains examples and documentation for the [Agentic Payments Hackathon in collaboration with Stripe](https://luma.com/f7gs82fe?tk=wx4evx).
 
 ## Quick Links
 - [Quickstart guide for deploying custom models](./.docs/dat1-model-deployment-quickstart.md)
@@ -10,6 +10,7 @@ This repo is made to test out the capabilities of dat1 in preparation for the [A
 - [Delegated Payment specification](./.docs/openai-agenticcommerce-spec-delegatedpayment.md) - Payment Service Provider integration for securely handling payment credentials with single-use tokens
 - [Product Feed specification](./.docs/openai-agenticcommerce-spec-productfeed.md) - Schema for sharing structured product data with ChatGPT for search and discovery
 - [Stripe Agentic Commerce documentation](./.docs/stripe-agenticcommerce-docs.md) - Guide for using Stripe's Shared Payment Tokens to process agentic commerce transactions
+- [Stripe Payment Intent API documentation](./.docs/stripe-paymentintentapi-docs.md) - Guide for using Stripe's Payment Intent API for handling payments.
 
 ## Example Applications
 
