@@ -2,3 +2,5 @@ CLAUDE.md
 .claude
 .venv
 **/*.gguf
+.cursor
+.docs/plans
