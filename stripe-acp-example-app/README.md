@@ -10,7 +10,7 @@ This application demonstrates an agentic checkout flow that is compliant with th
 
 > **Disclaimer: Shared Payment Token vs. Payment Intent API**
 >
-> The official Agentic Commerce Protocol specification uses a **Shared Payment Token (SPT)** for handling payments. However, the SPT API is currently in a private beta and is not yet publicly available.
+> The official Agentic Commerce Protocol specification uses a **Shared Payment Token (SPT)** for handling payments. However, the SPT API is currently not yet publicly available.
 >
 > As a workaround, this example application has been adapted to use the standard Stripe **Payment Intent API**. The `payment_intent_id` is used in place of the SPT to complete the checkout flow. This allows the application to demonstrate the full agentic checkout process while accommodating the current availability of the SPT API.
 
