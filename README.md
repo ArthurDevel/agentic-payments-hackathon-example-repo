@@ -15,6 +15,7 @@ This repo contains examples and documentation for the [Agentic Payments Hackatho
 ## Example Applications
 
 - Agentic Commerce Protocol (ACP) Example App: This application demonstrates an agentic checkout flow that is compliant with the ACP specification. An AI agent assists the user with purchasing a product, handling everything from product search to payment. See [stripe-acp-example-app/README.md](./stripe-acp-example-app/README.md) for details.
+- Stripe MCP Example App: Streaming chat interface demonstrating integration with the dat1 predeployed gpt-oss-120b model and Stripe MCP (Model Context Protocol) server. The AI agent can execute Stripe operations like retrieving balance, creating customers, managing products, and more through natural language conversations. See [stripe-mcp-example-app/README.md](./stripe-mcp-example-app/README.md) for details.
 - Dat1 Example Chat App: A simple chat interface demonstrating integration with the dat1 predeployed gpt-oss-120b model. Supports both streaming and non-streaming responses. See [dat1-example-app/README.md](./dat1-example-app/README.md) for details.
 
 
