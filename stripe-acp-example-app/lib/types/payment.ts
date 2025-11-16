@@ -3,25 +3,31 @@
  */
 
 /**
- * Request to create SharedPaymentToken
+ * Request to create PaymentIntent
  */
-export interface CreateSPTRequest {
-  payment_method_id: string;
+export interface CreatePaymentIntentRequest {
   amount: number;
   currency: string;
-  checkout_id: string;
 }
 
 /**
- * SharedPaymentToken response
+ * PaymentIntent response
  */
-export interface CreateSPTResponse {
-  spt_token: string;
+export interface CreatePaymentIntentResponse {
+  client_secret: string;
 }
 
 /**
- * Request to complete checkout with SPT
+ * Payment data for completing checkout
+ */
+interface PaymentData {
+  token: string; // This will be the payment_intent_id
+  provider: 'stripe';
+}
+
+/**
+ * Request to complete checkout with PaymentIntent
  */
 export interface CompleteCheckoutRequest {
-  spt_token: string;
+  payment_data: PaymentData;
 }

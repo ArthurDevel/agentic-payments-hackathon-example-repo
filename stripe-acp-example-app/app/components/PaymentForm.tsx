@@ -29,7 +29,7 @@ interface PaymentFormProps {
   checkoutId: string;
   amount: number;
   currency: string;
-  onPaymentComplete: (sptToken: string) => void;
+  onPaymentComplete: (paymentIntentId: string) => void;
   onError: (error: string) => void;
 }
 
@@ -59,35 +59,46 @@ function PaymentFormInternal({ checkoutId, amount, currency, onPaymentComplete, 
         throw new Error('Card element not found');
       }
 
-      // Create PaymentMethod
-      const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardNumberElement,
-      });
-
-      if (pmError || !paymentMethod) {
-        throw new Error(pmError?.message || 'Failed to create payment method');
-      }
-
-      // Create SharedPaymentToken via backend
-      const sptResponse = await fetch('/api/payment/create-spt', {
+      // Create Payment Intent to get client secret
+      const piResponse = await fetch('/api/payment/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          payment_method_id: paymentMethod.id,
-          checkout_id: checkoutId,
           amount,
           currency,
         }),
       });
 
-      if (!sptResponse.ok) {
-        const errorData = await sptResponse.json();
-        throw new Error(errorData.error || 'Failed to create payment token');
+      if (!piResponse.ok) {
+        const errorData = await piResponse.json();
+        throw new Error(errorData.error || 'Failed to create payment intent');
       }
 
-      const sptData = await sptResponse.json();
-      onPaymentComplete(sptData.spt_token);
+      const { client_secret: clientSecret } = await piResponse.json();
+
+      // Confirm the card payment
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardNumberElement,
+          },
+        }
+      );
+
+      if (confirmError) {
+        throw new Error(confirmError.message || 'Failed to confirm payment');
+      }
+
+      if (!paymentIntent) {
+        throw new Error('Payment intent not found after confirmation');
+      }
+
+      if (paymentIntent.status === 'succeeded') {
+        onPaymentComplete(paymentIntent.id);
+      } else {
+        throw new Error(`Payment not successful. Status: ${paymentIntent.status}`);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Payment failed';
       onError(errorMessage);

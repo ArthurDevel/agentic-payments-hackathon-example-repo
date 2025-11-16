@@ -141,14 +141,22 @@ const TOOLS: ToolDefinition[] = [
     type: 'function',
     function: {
       name: 'complete_checkout',
-      description: 'Complete the checkout with a SharedPaymentToken. Charges the payment and creates the order.',
+      description: 'Complete the checkout with a payment token. Charges the payment and creates the order.',
       parameters: {
         type: 'object',
         properties: {
           checkout_id: { type: 'string', description: 'Checkout session ID' },
-          spt_token: { type: 'string', description: 'SharedPaymentToken from Stripe' },
+          payment_data: {
+            type: 'object',
+            description: 'Payment data containing the token from the payment provider.',
+            properties: {
+              token: { type: 'string', description: 'The payment token (payment_intent_id from Stripe).' },
+              provider: { type: 'string', description: 'The payment provider, should be "stripe".' }
+            },
+            required: ['token', 'provider']
+          }
         },
-        required: ['checkout_id', 'spt_token'],
+        required: ['checkout_id', 'payment_data'],
       },
     },
   },
@@ -199,13 +207,16 @@ async function executeTool(toolName: string, args: string): Promise<string> {
     }
 
     case 'complete_checkout': {
-      const { checkout_id, spt_token } = parsedArgs;
+      const { checkout_id, payment_data } = parsedArgs;
       const response = await fetch(`${BASE_URL}/api/acp/checkout_sessions/${checkout_id}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spt_token }),
+        body: JSON.stringify({ payment_data }),
       });
-      if (!response.ok) throw new Error('Failed to complete checkout');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to complete checkout: ${errorData.error || response.statusText}`);
+      }
       const data = await response.json();
       return JSON.stringify(data);
     }

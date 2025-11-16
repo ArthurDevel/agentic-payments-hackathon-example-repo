@@ -156,12 +156,12 @@ export default function ChatPage() {
     }
   };
 
-  const handlePaymentComplete = async (sptToken: string) => {
+  const handlePaymentComplete = async (paymentIntentId: string) => {
     if (!checkoutState) return;
 
-    // Send SPT token to agent via chat message
+    // Send payment intent ID to agent via chat message
     // Format: explicit instruction for the agent to complete checkout
-    const paymentMessage = `Please complete the checkout. Checkout ID: ${checkoutState.checkoutId}, Payment token (SharedPaymentToken): ${sptToken}`;
+    const paymentMessage = `Please complete the checkout. Checkout ID: ${checkoutState.checkoutId}, Payment token (payment_intent_id): ${paymentIntentId}`;
     
     // Clear checkout state first
     setCheckoutState(null);

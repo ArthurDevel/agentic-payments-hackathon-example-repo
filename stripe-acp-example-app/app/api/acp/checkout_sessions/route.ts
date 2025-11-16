@@ -27,7 +27,7 @@ const SESSIONS_FILE_PATH = path.join(
   'checkout_sessions.json'
 );
 
-function readSessionsFromFile(): Map<string, CheckoutSession> {
+export function readSessionsFromFile(): Map<string, CheckoutSession> {
   try {
     if (fs.existsSync(SESSIONS_FILE_PATH)) {
       const fileContent = fs.readFileSync(SESSIONS_FILE_PATH, 'utf-8');
@@ -42,7 +42,7 @@ function readSessionsFromFile(): Map<string, CheckoutSession> {
   return new Map<string, CheckoutSession>();
 }
 
-function writeSessionsToFile(sessions: Map<string, CheckoutSession>): void {
+export function writeSessionsToFile(sessions: Map<string, CheckoutSession>): void {
   try {
     const data = JSON.stringify(Array.from(sessions.entries()), null, 2);
     fs.writeFileSync(SESSIONS_FILE_PATH, data, 'utf-8');
@@ -79,10 +79,10 @@ const FULFILLMENT_OPTIONS: FulfillmentOption[] = [
 ];
 
 // ============================================================================
-// IN-MEMORY STORAGE
+// IN-MEMORY STORAGE (DEPRECATED - READ FROM FILE INSTEAD)
 // ============================================================================
 
-// const checkoutSessions = new Map<string, CheckoutSession>();
+// export const checkoutSessions = readSessionsFromFile();
 
 // ============================================================================
 // HELPER FUNCTIONS

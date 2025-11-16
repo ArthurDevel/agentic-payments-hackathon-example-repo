@@ -11,7 +11,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CompleteCheckoutRequest } from '@/lib/types/payment';
 import { CompleteCheckoutResponse, Order } from '@/lib/types/order';
-import { checkoutSessions } from '../../route';
+import { readSessionsFromFile, writeSessionsToFile } from '../../route';
+import { stripe } from '@/lib/stripe/client';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -67,10 +68,12 @@ export async function POST(
   const { id } = await params;
   const body: CompleteCheckoutRequest = await request.json();
 
-  if (!body.spt_token) {
-    throw new Error('SharedPaymentToken is required');
+  if (!body.payment_data?.token) {
+    throw new Error('payment_data.token (containing payment_intent_id) is required');
   }
+  const paymentIntentId = body.payment_data.token;
 
+  const checkoutSessions = readSessionsFromFile();
   const checkout = checkoutSessions.get(id);
   if (!checkout) {
     throw new Error(`Checkout session not found: ${id}`);
@@ -95,36 +98,21 @@ export async function POST(
     throw new Error('Total amount not found in checkout');
   }
 
-  // Create PaymentIntent with SharedPaymentToken
-  // Using raw fetch since SPT parameter may not be in SDK yet
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is required');
-  }
-
-  const paymentResponse = await fetch('https://api.stripe.com/v1/payment_intents', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      'amount': totalAmount.toString(),
-      'currency': checkout.currency,
-      'shared_payment_granted_token': body.spt_token,
-      'confirm': 'true',
-    }),
-  });
-
-  if (!paymentResponse.ok) {
-    const errorText = await paymentResponse.text();
-    throw new Error(`Stripe payment failed: ${errorText}`);
-  }
-
-  const paymentIntent = await paymentResponse.json();
+  // Retrieve and verify the PaymentIntent
+  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
   if (paymentIntent.status !== 'succeeded') {
     throw new Error(`Payment failed with status: ${paymentIntent.status}`);
   }
+
+  if (paymentIntent.amount !== totalAmount) {
+    throw new Error(`Payment amount mismatch. Expected ${totalAmount}, but was ${paymentIntent.amount}`);
+  }
+
+  if (paymentIntent.currency !== checkout.currency) {
+    throw new Error(`Payment currency mismatch. Expected ${checkout.currency}, but was ${paymentIntent.currency}`);
+  }
+
 
   // Create order
   const order = createOrder(id, paymentIntent.id, totalAmount, checkout.currency);
@@ -132,6 +120,7 @@ export async function POST(
   // Update checkout status
   checkout.status = 'completed';
   checkoutSessions.set(id, checkout);
+  writeSessionsToFile(checkoutSessions);
 
   return NextResponse.json({
     checkout,
