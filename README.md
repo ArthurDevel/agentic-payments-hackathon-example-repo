@@ -13,14 +13,14 @@ This repo is made to test out the capabilities of dat1 in preparation for the [A
 
 ## Example Applications
 
-Simple Next.js chat application demonstrating integration with the dat1 gpt-oss-120b model. See [dat1-example-app/README.md](./dat1-example-app/README.md) for details.
+- Agentic Commerce Protocol (ACP) Example App: This application demonstrates an agentic checkout flow that is compliant with the ACP specification. An AI agent assists the user with purchasing a product, handling everything from product search to payment. See [stripe-acp-example-app/README.md](./stripe-acp-example-app/README.md) for details.
+- Dat1 Example Chat App: A simple chat interface demonstrating integration with the dat1 predeployed gpt-oss-120b model. Supports both streaming and non-streaming responses. See [dat1-example-app/README.md](./dat1-example-app/README.md) for details.
 
-## Deploying custom models
+
+## Deploying custom models on Dat1
 
 See `dat1-deploy-custom-models`:
-- `dat1-deploy-custom-models/bge-reranker`: downloads a reranker from Huggingface and uploads it to dat1, then provides an endpoint to use it (serverless)
-- `dat1-deploy-custom-models/llama-chat`: first download LLaMA 3.2 3B locally, then upload it to dat1, then get an endpoint to use it
+- `dat1-deploy-custom-models/bge-reranker`: downloads a reranker from Huggingface and uploads it to dat1, then provides an endpoint to use it (serverless). See [dat1-deploy-custom-models/bge-reranker/README.md](dat1-deploy-custom-models/bge-reranker/README.md) for details.
+- `dat1-deploy-custom-models/llama-chat`: first download LLaMA 3.2 3B locally, then upload it to dat1, then get an endpoint to use it. See [dat1-deploy-custom-models/llama-chat/README.md](dat1-deploy-custom-models/llama-chat/README.md) for details.
 
-## Dat1 Examples Repo
-
-Find Dat1's example repo at [https://github.com/dat1-co/dat1-model-examples](https://github.com/dat1-co/dat1-model-examples).
+**note:** Find Dat1's example repo at [https://github.com/dat1-co/dat1-model-examples](https://github.com/dat1-co/dat1-model-examples).
