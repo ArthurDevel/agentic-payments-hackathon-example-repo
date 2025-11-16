@@ -11,7 +11,7 @@ This repo is made to test out the capabilities of dat1 in preparation for the [A
 - [Product Feed specification](./.docs/openai-agenticcommerce-spec-productfeed.md) - Schema for sharing structured product data with ChatGPT for search and discovery
 - [Stripe Agentic Commerce documentation](./.docs/stripe-agenticcommerce-docs.md) - Guide for using Stripe's Shared Payment Tokens to process agentic commerce transactions
 
-## Example App
+## Example Applications
 
 Simple Next.js chat application demonstrating integration with the dat1 gpt-oss-120b model. See [dat1-example-app/README.md](./dat1-example-app/README.md) for details.
 
@@ -21,6 +21,6 @@ See `dat1-deploy-custom-models`:
 - `dat1-deploy-custom-models/bge-reranker`: downloads a reranker from Huggingface and uploads it to dat1, then provides an endpoint to use it (serverless)
 - `dat1-deploy-custom-models/llama-chat`: first download LLaMA 3.2 3B locally, then upload it to dat1, then get an endpoint to use it
 
-## Examples Repo
+## Dat1 Examples Repo
 
-Please find a copy of the dat1 examples repo ([https://github.com/dat1-co/dat1-model-examples](https://github.com/dat1-co/dat1-model-examples)) at `./dat1-example-repo`.
+Find Dat1's example repo at [https://github.com/dat1-co/dat1-model-examples](https://github.com/dat1-co/dat1-model-examples).
